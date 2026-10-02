@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App user account for Admin, Team, or Client",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "minLength": 2, "maxLength": 50 },
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "role": { "type": "string", "enum": ["admin", "team", "client"] },
+        "email": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "disabled"] },
+        "assignedWorkspaces": { "type": "array" },
+        "accessToken": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["username", "name", "role", "status"]
+    },
+    "Workspace": {
+      "title": "Workspace",
+      "description": "Client workspace configuration and sections",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 150 },
+        "clientId": { "type": "string" },
+        "clientUsername": { "type": "string" },
+        "enabledSections": { "type": "array" },
+        "enabledFolderCategories": { "type": "array" },
+        "accessToken": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "disabled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "clientId", "accessToken", "status"]
+    },
+    "Folder": {
+      "title": "Folder",
+      "description": "Folders inside a client workspace",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "parentFolderId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "sectionCategory": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["workspaceId", "name"]
+    },
+    "File": {
+      "title": "File",
+      "description": "Stored file metadata and contents inside a workspace",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "folderId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 200 },
+        "size": { "type": "number" },
+        "mimeType": { "type": "string" },
+        "url": { "type": "string" },
+        "fileData": { "type": "string" },
+        "uploadedBy": { "type": "string" },
+        "uploadedByName": { "type": "string" },
+        "uploadedByRole": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "name", "size", "uploadedBy"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Chat conversation threads linked to workspaces",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "lastMessage": { "type": "string" },
+        "lastMessageAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "participantIds"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "WhatsApp-like chat messages in a conversation",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderRole": { "type": "string" },
+        "text": { "type": "string", "maxLength": 2000 },
+        "attachments": { "type": "array" },
+        "replyToId": { "type": "string" },
+        "readBy": { "type": "array" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["conversationId", "workspaceId", "senderId", "text"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Audit trail log of uploads, downloads, actions",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userName", "action", "details"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": { "$ref": "#/entities/User" }, "description": "User profiles and credentials" },
+    "workspaces": { "schema": { "$ref": "#/entities/Workspace" }, "description": "Client workspaces and settings" },
+    "workspaceFolders": { "schema": { "$ref": "#/entities/Folder" }, "description": "Folders per workspace" },
+    "files": { "schema": { "$ref": "#/entities/File" }, "description": "Files per workspace" },
+    "conversations": { "schema": { "$ref": "#/entities/Conversation" }, "description": "Chat conversations" },
+    "messages": { "schema": { "$ref": "#/entities/Message" }, "description": "Chat messages" },
+    "activityLogs": { "schema": { "$ref": "#/entities/ActivityLog" }, "description": "Activity log records" }
+  }
+}

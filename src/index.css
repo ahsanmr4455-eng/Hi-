@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --color-olive-primary: #68734A;
+  --color-olive-hover: #58623E;
+  --color-olive-dark: #485132;
+  --color-olive-light: #F0F2EC;
+  --color-olive-border: #D4D9C8;
+  --color-dark-grey: #30332F;
+  --color-muted-grey: #626661;
+  --color-ash-white: #F2F2EF;
+  --color-soft-grey: #DCDDD8;
+  --color-card-white: #FFFFFF;
+}
+
+body {
+  background-color: #F2F2EF !important;
+  color: #30332F !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom Olive Theme Utility Classes */
+.bg-ash-white {
+  background-color: #F2F2EF !important;
+}
+
+.bg-olive-primary {
+  background-color: #68734A !important;
+}
+
+.hover\:bg-olive-hover:hover {
+  background-color: #58623E !important;
+}
+
+.bg-olive-light {
+  background-color: #F0F2EC !important;
+}
+
+.text-dark-grey {
+  color: #30332F !important;
+}
+
+.text-muted-grey {
+  color: #626661 !important;
+}
+
+.text-olive-primary {
+  color: #68734A !important;
+}
+
+.border-soft-grey {
+  border-color: #DCDDD8 !important;
+}
+
+.border-olive-primary {
+  border-color: #68734A !important;
+}
+
+.border-olive-light {
+  border-color: #D4D9C8 !important;
+}
+
+/* Global utility overrides for Indigo/Slate -> Olive Green & Dark Grey */
+.bg-indigo-600, .bg-indigo-700 {
+  background-color: #68734A !important;
+}
+
+.hover\:bg-indigo-500:hover, .hover\:bg-indigo-600:hover {
+  background-color: #58623E !important;
+}
+
+.active\:bg-indigo-700:active {
+  background-color: #485132 !important;
+}
+
+.text-indigo-600, .text-indigo-700, .text-indigo-800 {
+  color: #68734A !important;
+}
+
+.text-indigo-500 {
+  color: #68734A !important;
+}
+
+.bg-indigo-50, .bg-indigo-50\/70, .bg-indigo-100 {
+  background-color: #F0F2EC !important;
+}
+
+.border-indigo-100, .border-indigo-200, .border-indigo-300, .border-indigo-500 {
+  border-color: #D4D9C8 !important;
+}
+
+.focus\:ring-indigo-500:focus, .focus\:ring-indigo-600:focus {
+  --tw-ring-color: #68734A !important;
+}
+
+.shadow-indigo-600\/20, .shadow-indigo-600\/30 {
+  --tw-shadow-color: rgba(104, 115, 74, 0.2) !important;
+}
+
+/* Dark Grey Overrides */
+.bg-slate-900 {
+  background-color: #30332F !important;
+}
+
+.text-slate-900, .text-slate-800 {
+  color: #30332F !important;
+}
+
+.text-slate-700, .text-slate-600, .text-slate-500 {
+  color: #626661 !important;
+}
+
+.text-slate-400 {
+  color: #838781 !important;
+}
+
+.bg-slate-50, .bg-slate-100 {
+  background-color: #F8F8F6 !important;
+}
+
+.border-slate-200, .border-slate-300 {
+  border-color: #DCDDD8 !important;
+}
+
+/* Chat bubble styling: Sent messages in Olive Green, received messages in White/Soft Grey */
+.chat-bubble-sent {
+  background-color: #68734A !important;
+  color: #FFFFFF !important;
+}
+
+.chat-bubble-received {
+  background-color: #FFFFFF !important;
+  color: #30332F !important;
+  border: 1px solid #DCDDD8 !important;
+}
+
+/* Focus styles for inputs */
+input:focus, select:focus, textarea:focus {
+  border-color: #68734A !important;
+}
