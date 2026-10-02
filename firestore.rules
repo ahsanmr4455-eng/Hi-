@@ -22,6 +22,10 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    match /fileVersions/{versionId} {
+      allow read, write: if true;
+    }
+
     match /conversations/{conversationId} {
       allow read, write: if true;
 
@@ -34,11 +38,35 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    match /activityLogs/{logId} {
+    match /projects/{projectId} {
+      allow read, write: if true;
+    }
+
+    match /tasks/{taskId} {
+      allow read, write: if true;
+    }
+
+    match /supportRequests/{requestId} {
+      allow read, write: if true;
+
+      match /messages/{messageId} {
+        allow read, write: if true;
+      }
+    }
+
+    match /approvals/{approvalId} {
       allow read, write: if true;
     }
 
     match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+
+    match /activityLogs/{logId} {
+      allow read, write: if true;
+    }
+
+    match /feedback/{feedbackId} {
       allow read, write: if true;
     }
   }

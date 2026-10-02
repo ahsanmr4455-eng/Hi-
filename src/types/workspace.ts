@@ -51,12 +51,15 @@ export interface WorkspaceFile {
   mimeType: string;
   url?: string;
   fileData?: string;
+  currentVersion?: number;
   uploadedBy: string;
   uploadedByName: string;
   uploadedByRole: UserRole;
   createdAt: string;
   updatedAt?: string;
 }
+
+export type { FileVersion } from './portal';
 
 export interface Conversation {
   id: string;

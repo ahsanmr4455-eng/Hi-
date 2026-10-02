@@ -9,6 +9,7 @@ import {
   Film,
   Folder,
   FolderPlus,
+  History,
   Image as ImageIcon,
   MoreVertical,
   MoveRight,
@@ -22,6 +23,10 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
+  subscribeFileVersions,
+  uploadFileVersion
+} from '../../services/portalService';
+import {
   addWorkspaceFile,
   createFolder,
   deleteFolder,
@@ -32,6 +37,7 @@ import {
   subscribeWorkspaceFolders
 } from '../../services/workspaceService';
 import {
+  FileVersion,
   DownloadProgressItem,
   Folder as FolderType,
   UploadProgressItem,
@@ -54,6 +60,10 @@ export const WorkspaceView: React.FC = () => {
   const [previewFile, setPreviewFile] = useState<WorkspaceFile | null>(null);
   const [editingFile, setEditingFile] = useState<WorkspaceFile | null>(null);
   const [newFileNameInput, setNewFileNameInput] = useState('');
+
+  // Version Control State
+  const [versionModalFile, setVersionModalFile] = useState<WorkspaceFile | null>(null);
+  const [fileVersionsList, setFileVersionsList] = useState<FileVersion[]>([]);
 
   // Active Progress Lists
   const [activeUploads, setActiveUploads] = useState<UploadProgressItem[]>([]);
@@ -82,6 +92,17 @@ export const WorkspaceView: React.FC = () => {
       unsubFiles();
     };
   }, [activeWorkspace]);
+
+  useEffect(() => {
+    if (!versionModalFile) {
+      setFileVersionsList([]);
+      return;
+    }
+    const unsub = subscribeFileVersions(versionModalFile.id, (vList) => {
+      setFileVersionsList(vList);
+    });
+    return () => unsub();
+  }, [versionModalFile]);
 
   if (!activeWorkspace) {
     return (
@@ -426,18 +447,29 @@ export const WorkspaceView: React.FC = () => {
 
                   {/* Actions Bar */}
                   <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                    <button
-                      onClick={() => setPreviewFile(file)}
-                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Preview</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewFile(file)}
+                        className="text-xs text-[#68734A] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Preview</span>
+                      </button>
+
+                      <button
+                        onClick={() => setVersionModalFile(file)}
+                        className="text-[11px] text-[#838781] hover:text-[#30332F] font-bold flex items-center gap-0.5 cursor-pointer"
+                        title="View Version History"
+                      >
+                        <History className="w-3.5 h-3.5 text-[#68734A]" />
+                        <span>v{file.currentVersion || 1}</span>
+                      </button>
+                    </div>
 
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleDownloadFile(file)}
-                        className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg cursor-pointer"
+                        className="p-1.5 text-slate-500 hover:text-[#68734A] hover:bg-[#F0F2EC] rounded-lg cursor-pointer"
                         title="Download File"
                       >
                         <Download className="w-4 h-4" />
@@ -537,6 +569,73 @@ export const WorkspaceView: React.FC = () => {
                 className="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-500"
               >
                 Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VERSION HISTORY MODAL */}
+      {versionModalFile && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 border border-[#DCDDD8] space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#DCDDD8] pb-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase text-[#68734A]">Version History</span>
+                <h3 className="text-sm font-bold text-[#30332F]">{versionModalFile.name}</h3>
+              </div>
+              <button onClick={() => setVersionModalFile(null)} className="p-1 text-[#838781]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-3 bg-[#F0F2EC] rounded-xl border border-[#D4D9C8] flex items-center justify-between text-xs font-bold text-[#68734A]">
+                <span>Current Active Version</span>
+                <span>Version {versionModalFile.currentVersion || 1}</span>
+              </div>
+
+              <div className="divide-y divide-[#DCDDD8]">
+                {fileVersionsList.length === 0 ? (
+                  <div className="py-4 text-center text-xs text-[#838781]">
+                    Initial version uploaded by {versionModalFile.uploadedByName}.
+                  </div>
+                ) : (
+                  fileVersionsList.map((ver) => (
+                    <div key={ver.id} className="py-3 flex items-center justify-between text-xs">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-[#30332F]">Version {ver.versionNumber}</span>
+                          <span className="text-[10px] text-[#838781]">
+                            {new Date(ver.uploadedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-[#626661]">Uploaded by {ver.uploadedByName} ({ver.uploadedByRole.toUpperCase()})</p>
+                      </div>
+
+                      {ver.downloadUrl && (
+                        <a
+                          href={ver.downloadUrl}
+                          download={ver.fileName}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1 bg-[#68734A] text-white rounded-lg text-[10px] font-bold cursor-pointer hover:bg-[#58623E]"
+                        >
+                          Download
+                        </a>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-[#DCDDD8] flex justify-end">
+              <button
+                onClick={() => setVersionModalFile(null)}
+                className="px-4 py-2 bg-[#68734A] text-white font-bold text-xs rounded-xl"
+              >
+                Close
               </button>
             </div>
           </div>

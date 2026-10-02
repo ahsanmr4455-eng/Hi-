@@ -12,6 +12,8 @@
         "status": { "type": "string", "enum": ["active", "disabled"] },
         "assignedWorkspaces": { "type": "array" },
         "accessToken": { "type": "string" },
+        "isOnline": { "type": "boolean" },
+        "lastSeen": { "type": "string" },
         "createdAt": { "type": "string" }
       },
       "required": ["username", "name", "role", "status"]
@@ -58,12 +60,34 @@
         "mimeType": { "type": "string" },
         "url": { "type": "string" },
         "fileData": { "type": "string" },
+        "currentVersion": { "type": "number" },
         "uploadedBy": { "type": "string" },
         "uploadedByName": { "type": "string" },
         "uploadedByRole": { "type": "string" },
         "createdAt": { "type": "string" }
       },
       "required": ["workspaceId", "name", "size", "uploadedBy"]
+    },
+    "FileVersion": {
+      "title": "FileVersion",
+      "description": "Version records for files in a workspace",
+      "type": "object",
+      "properties": {
+        "fileId": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "versionNumber": { "type": "number" },
+        "uploadedBy": { "type": "string" },
+        "uploadedByName": { "type": "string" },
+        "uploadedByRole": { "type": "string" },
+        "uploadedAt": { "type": "string" },
+        "fileName": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "mimeType": { "type": "string" },
+        "url": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["fileId", "workspaceId", "versionNumber"]
     },
     "Conversation": {
       "title": "Conversation",
@@ -87,13 +111,112 @@
         "senderId": { "type": "string" },
         "senderName": { "type": "string" },
         "senderRole": { "type": "string" },
+        "type": { "type": "string" },
         "text": { "type": "string", "maxLength": 2000 },
         "attachments": { "type": "array" },
         "replyToId": { "type": "string" },
         "readBy": { "type": "array" },
         "createdAt": { "type": "string" }
       },
-      "required": ["conversationId", "workspaceId", "senderId", "text"]
+      "required": ["conversationId", "workspaceId", "senderId"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Client projects with progress, milestones, and timelines",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "clientId": { "type": "string" },
+        "clientUsername": { "type": "string" },
+        "assignedTeamMemberIds": { "type": "array" },
+        "startDate": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string" },
+        "progress": { "type": "number" },
+        "priority": { "type": "string" },
+        "milestones": { "type": "array" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "title", "clientId", "status"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Action items inside projects or workspaces",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "assignedToId": { "type": "string" },
+        "assignedToName": { "type": "string" },
+        "priority": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string" },
+        "visibleToClient": { "type": "boolean" },
+        "attachments": { "type": "array" },
+        "comments": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "completedAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "title", "status"]
+    },
+    "SupportRequest": {
+      "title": "SupportRequest",
+      "description": "Client support tickets and dedicated thread conversations",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "priority": { "type": "string" },
+        "attachments": { "type": "array" },
+        "status": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdByName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "title", "createdBy", "status"]
+    },
+    "DeliverableApproval": {
+      "title": "DeliverableApproval",
+      "description": "Deliverable files submitted for client review and feedback",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "projectId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "fileName": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "version": { "type": "number" },
+        "status": { "type": "string" },
+        "clientComment": { "type": "string" },
+        "approvalDate": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "title", "fileName", "status"]
+    },
+    "InAppNotification": {
+      "title": "InAppNotification",
+      "description": "Real-time user notification records",
+      "type": "object",
+      "properties": {
+        "recipientId": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "linkTab": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["recipientId", "title", "message", "read"]
     },
     "ActivityLog": {
       "title": "ActivityLog",
@@ -105,10 +228,27 @@
         "userName": { "type": "string" },
         "userRole": { "type": "string" },
         "action": { "type": "string" },
+        "objectType": { "type": "string" },
+        "objectId": { "type": "string" },
         "details": { "type": "string" },
         "timestamp": { "type": "string" }
       },
       "required": ["userName", "action", "details"]
+    },
+    "ClientFeedback": {
+      "title": "ClientFeedback",
+      "description": "Ratings and feedback provided by clients",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "projectId": { "type": "string" },
+        "deliverableId": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "clientName": { "type": "string" },
+        "feedbackDate": { "type": "string" }
+      },
+      "required": ["workspaceId", "rating", "comment"]
     }
   },
   "firestore": {
@@ -116,8 +256,15 @@
     "workspaces": { "schema": { "$ref": "#/entities/Workspace" }, "description": "Client workspaces and settings" },
     "workspaceFolders": { "schema": { "$ref": "#/entities/Folder" }, "description": "Folders per workspace" },
     "files": { "schema": { "$ref": "#/entities/File" }, "description": "Files per workspace" },
+    "fileVersions": { "schema": { "$ref": "#/entities/FileVersion" }, "description": "File version records" },
     "conversations": { "schema": { "$ref": "#/entities/Conversation" }, "description": "Chat conversations" },
     "messages": { "schema": { "$ref": "#/entities/Message" }, "description": "Chat messages" },
-    "activityLogs": { "schema": { "$ref": "#/entities/ActivityLog" }, "description": "Activity log records" }
+    "projects": { "schema": { "$ref": "#/entities/Project" }, "description": "Client projects" },
+    "tasks": { "schema": { "$ref": "#/entities/Task" }, "description": "Project tasks" },
+    "supportRequests": { "schema": { "$ref": "#/entities/SupportRequest" }, "description": "Support tickets" },
+    "approvals": { "schema": { "$ref": "#/entities/DeliverableApproval" }, "description": "Deliverable approvals" },
+    "notifications": { "schema": { "$ref": "#/entities/InAppNotification" }, "description": "Notifications" },
+    "activityLogs": { "schema": { "$ref": "#/entities/ActivityLog" }, "description": "Activity log records" },
+    "feedback": { "schema": { "$ref": "#/entities/ClientFeedback" }, "description": "Client feedback ratings" }
   }
 }

@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityLogView } from './components/admin/ActivityLogView';
-import { AdminDashboard } from './components/admin/AdminDashboard';
 import { ClientManagement } from './components/admin/ClientManagement';
 import { SettingsView } from './components/admin/SettingsView';
 import { TeamManagement } from './components/admin/TeamManagement';
+import { ApprovalsView } from './components/approvals/ApprovalsView';
 import { AdminLoginView } from './components/auth/AdminLoginView';
 import { PortalLoginView } from './components/auth/PortalLoginView';
+import { CalendarView } from './components/calendar/CalendarView';
 import { ChatView } from './components/chat/ChatView';
+import { OverviewDashboard } from './components/dashboard/OverviewDashboard';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
+import { ProjectsView } from './components/projects/ProjectsView';
+import { SupportView } from './components/support/SupportView';
+import { TasksView } from './components/tasks/TasksView';
 import { WorkspaceView } from './components/workspace/WorkspaceView';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { subscribeActivityLogs } from './services/workspaceService';
@@ -20,22 +25,10 @@ const MainAppContent: React.FC = () => {
   const [isOpenCreateClientModal, setIsOpenCreateClientModal] = useState(false);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
-  // Subscribe to activity logs for real-time dashboard updates
   useEffect(() => {
     if (!currentUser) return;
     const unsub = subscribeActivityLogs((logs) => setActivityLogs(logs));
     return () => unsub();
-  }, [currentUser]);
-
-  // Set default tab based on user role
-  useEffect(() => {
-    if (currentUser) {
-      if (currentUser.role === 'admin') {
-        setActiveTab('dashboard');
-      } else {
-        setActiveTab('files');
-      }
-    }
   }, [currentUser]);
 
   if (isLoading) {
@@ -49,7 +42,6 @@ const MainAppContent: React.FC = () => {
     );
   }
 
-  // 1. Invalid or Revoked Token Screen
   if (invalidTokenError) {
     return (
       <div className="min-h-screen bg-[#F2F2EF] flex items-center justify-center p-4">
@@ -70,7 +62,6 @@ const MainAppContent: React.FC = () => {
     );
   }
 
-  // 2. Portal Access via Token Link
   if (resolvedPortalLink && resolvedPortalLink.valid && !currentUser) {
     return (
       <PortalLoginView
@@ -82,49 +73,46 @@ const MainAppContent: React.FC = () => {
     );
   }
 
-  // 3. Default Admin Login View
   if (!currentUser) {
     return <AdminLoginView />;
   }
 
-  // 4. Authenticated Workspace View
   return (
     <div className="min-h-screen bg-[#F2F2EF] flex flex-col text-[#30332F] font-sans">
-      <Navbar />
+      <Navbar onNavigate={(tab) => setActiveTab(tab)} />
 
       <div className="flex-1 flex overflow-hidden">
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full space-y-6">
-          {/* Admin Panels */}
-          {currentUser.role === 'admin' && activeTab === 'dashboard' && (
-            <AdminDashboard
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+          {activeTab === 'dashboard' && (
+            <OverviewDashboard
               onNavigate={(tab) => setActiveTab(tab)}
               onOpenCreateClient={() => {
                 setActiveTab('clients');
                 setIsOpenCreateClientModal(true);
               }}
-              activityLogs={activityLogs}
             />
           )}
 
+          {activeTab === 'projects' && <ProjectsView />}
+          {activeTab === 'tasks' && <TasksView />}
+          {activeTab === 'support' && <SupportView />}
+          {activeTab === 'approvals' && <ApprovalsView />}
+          {activeTab === 'calendar' && <CalendarView onNavigate={(tab) => setActiveTab(tab)} />}
+          {activeTab === 'files' && <WorkspaceView />}
+          {activeTab === 'chat' && <ChatView />}
+          {activeTab === 'activity' && <ActivityLogView />}
+
+          {/* Admin Panels */}
           {currentUser.role === 'admin' && activeTab === 'clients' && (
             <ClientManagement
               isOpenCreateModal={isOpenCreateClientModal}
               onCloseCreateModal={() => setIsOpenCreateClientModal(false)}
             />
           )}
-
           {currentUser.role === 'admin' && activeTab === 'team' && <TeamManagement />}
           {currentUser.role === 'admin' && activeTab === 'settings' && <SettingsView />}
-
-          {/* Shared Portal Views (Client & Team) */}
-          {(activeTab === 'files' || activeTab === 'workspace' || activeTab === 'overview' || activeTab === 'projects') && (
-            <WorkspaceView />
-          )}
-
-          {activeTab === 'chat' && <ChatView />}
-          {(activeTab === 'activity' || currentUser.role !== 'admin') && activeTab === 'activity' && <ActivityLogView />}
         </main>
       </div>
     </div>
